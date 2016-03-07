@@ -3,9 +3,9 @@ Contributors: mgibbs189
 Donate link: http://forumone.com/
 Tags: configuration, settings, configuration management, features, drupal
 Requires at least: 4.0
-Tested up to: 4.3
+Tested up to: 4.5
 Stable tag: trunk
-License: GPL2
+License: GPLv2
 
 Manage and deploy WordPress configuration changes
 
@@ -98,6 +98,12 @@ function my_pull_callback( $params ) {
 3. Diff viewer to track changes within a bundle
 
 == Changelog ==
+
+= 1.4.4 =
+* New: `wpcfm_config_dir` filter to customize config directory
+* New: `wpcfm_config_url` filter to customize config URL
+* Fix: PHP notice when config dir has .DS_Store
+* Fix: PHP7 warning
 
 = 1.4.3 =
 * Fixed: WP-CLI diff (props @mortana42)
