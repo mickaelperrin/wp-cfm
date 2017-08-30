@@ -40,6 +40,7 @@ class WPCFM_Readwrite
             $settings = array( 'bundles' => array() );
         }
 
+        $dontUpdateSettings = false;
         // Import each bundle into DB
         foreach ( $bundles as $bundle_name ) {
             $data = $this->read_file( $bundle_name );
@@ -47,6 +48,14 @@ class WPCFM_Readwrite
             unset( $data['.label'] );
 
             $this->write_db( $bundle_name, $data );
+
+            // If we import wpcfm settings don't update it
+            if (!$dontUpdateSettings) {
+              $dontUpdateSettings = $bundle_name == 'wpcfm';
+            }
+            if ($dontUpdateSettings) {
+              continue;
+            }
 
             // Update the bundle's config options (using the pull file)
             $exists = false;
@@ -69,7 +78,9 @@ class WPCFM_Readwrite
         }
 
         // Write the settings
-        WPCFM()->options->update( 'wpcfm_settings', json_encode( $settings ) );
+        if (!$dontUpdateSettings) {
+          WPCFM()->options->update( 'wpcfm_settings', json_encode( $settings ) );
+        }
     }
 
 
@@ -93,7 +104,7 @@ class WPCFM_Readwrite
                 json_encode( $data, JSON_PRETTY_PRINT ) :
                 json_encode( $data );
             }
-            elseif (in_array(WPCFM_CONFIG_FORMAT, ['yaml', 'yml'])) {
+            elseif (in_array(WPCFM_CONFIG_FORMAT, array('yaml', 'yml'))) {
               foreach ($data as $key => &$value) {
                 $jsonDecoded = json_decode($value, true);
                 if (is_array($jsonDecoded)) {
@@ -190,10 +201,10 @@ class WPCFM_Readwrite
             if (WPCFM_CONFIG_FORMAT == 'json') {
             return json_decode( $contents, true );
             }
-            elseif (in_array(WPCFM_CONFIG_FORMAT, ['yaml', 'yml'])) {
+            elseif (in_array(WPCFM_CONFIG_FORMAT, array('yaml', 'yml'))) {
               $array = Yaml::parse($contents);
               foreach ($array as $key => $value) {
-                $format = [];
+                $format = array();
                 if (preg_match('/\.(.*)_format/i', $key, $format)) {
                   switch ($array[$format[0]]) {
                     case 'serialized':
